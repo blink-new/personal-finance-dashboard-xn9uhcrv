@@ -51,7 +51,8 @@ export function Dashboard() {
         where: { 
           userId: user.id,
           month: currentMonth,
-          year: currentYear
+          year: currentYear,
+          category: 'total'
         },
         limit: 1
       })
@@ -62,10 +63,11 @@ export function Dashboard() {
         // Create default budget if none exists
         const defaultBudget = await blink.db.budgets.create({
           userId: user.id,
+          category: 'total',
+          monthlyLimit: 30000,
+          currentSpent: 0,
           month: currentMonth,
-          year: currentYear,
-          totalBudget: 30000,
-          spentAmount: 0
+          year: currentYear
         })
         setBudget(defaultBudget)
       }
@@ -91,12 +93,12 @@ export function Dashboard() {
   }
 
   // Calculate totals
-  const totalLoans = loans.reduce((sum, loan) => sum + loan.currentOutstanding, 0)
+  const totalLoans = loans.reduce((sum, loan) => sum + loan.outstandingAmount, 0)
   const totalEMI = loans.reduce((sum, loan) => sum + loan.emiAmount, 0)
   const totalInvestments = investments.reduce((sum, inv) => sum + inv.currentValue, 0)
   const netWorth = totalInvestments - totalLoans
-  const monthlyBudget = budget?.totalBudget || 0
-  const spentAmount = budget?.spentAmount || 0
+  const monthlyBudget = budget?.monthlyLimit || 0
+  const spentAmount = budget?.currentSpent || 0
 
   return (
     <div className="space-y-6">

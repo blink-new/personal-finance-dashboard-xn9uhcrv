@@ -17,28 +17,30 @@ export interface Account {
 export interface Loan {
   id: string;
   userId: string;
-  name: string;
+  loanName: string;
   principalAmount: number;
-  currentOutstanding: number;
+  outstandingAmount: number;
   interestRate: number;
   emiAmount: number;
   tenureMonths: number;
-  remainingMonths: number;
   startDate: string;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface SipInvestment {
   id: string;
   userId: string;
-  name: string;
+  sipName: string;
   category: 'large_cap' | 'mid_cap' | 'small_cap' | 'debt' | 'hybrid';
   monthlyAmount: number;
   currentValue: number;
-  totalInvested: number;
   allocationPercentage: number;
   expectedReturnRate: number;
+  startDate: string;
+  isActive: number;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface MonthlyInvestment {
@@ -53,21 +55,25 @@ export interface MonthlyInvestment {
 export interface Expense {
   id: string;
   userId: string;
-  category: string;
   amount: number;
+  category: string;
   description?: string;
   expenseDate: string;
+  isFixed: number;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface Budget {
   id: string;
   userId: string;
+  category: string;
+  monthlyLimit: number;
+  currentSpent: number;
   month: number;
   year: number;
-  totalBudget: number;
-  spentAmount: number;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface FinancialSummary {

@@ -72,7 +72,7 @@ export function MonthlySummary() {
       
       // Get SIP investments for monthly investment calculation
       const sips = await blink.db.sipInvestments.list({
-        where: { userId: user.id, isActive: "1" }
+        where: { userId: user.id, isActive: 1 }
       })
       
       // Get current month expenses
