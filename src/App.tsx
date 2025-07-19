@@ -1,15 +1,41 @@
-import { useState } from 'react'
-import { Sidebar } from '@/components/layout/Sidebar'
-import { Dashboard } from '@/components/dashboard/Dashboard'
-import { Toaster } from '@/components/ui/toaster'
+import React, { useState } from 'react';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
+import { AuthPage } from '@/pages/AuthPage';
+import { OnboardingForm } from '@/components/auth/OnboardingForm';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { Dashboard } from '@/components/dashboard/Dashboard';
+import { Toaster } from '@/components/ui/toaster';
+import { Toaster as SonnerToaster } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
-function App() {
-  const [activeTab, setActiveTab] = useState('dashboard')
+const AppContent: React.FC = () => {
+  const { user, loading } = useAuth();
+  const [activeTab, setActiveTab] = useState('dashboard');
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-green-600" />
+          <p className="text-lg text-gray-600">Loading your financial dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthPage />;
+  }
+
+  if (!user.isOnboardingComplete) {
+    return <OnboardingForm />;
+  }
 
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard />
+        return <Dashboard />;
       case 'loans':
         return (
           <div className="space-y-6">
@@ -18,7 +44,7 @@ function App() {
               <p className="text-gray-600">Loan tracking features coming soon...</p>
             </div>
           </div>
-        )
+        );
       case 'investments':
         return (
           <div className="space-y-6">
@@ -27,7 +53,7 @@ function App() {
               <p className="text-gray-600">Investment dashboard coming soon...</p>
             </div>
           </div>
-        )
+        );
       case 'expenses':
         return (
           <div className="space-y-6">
@@ -36,7 +62,7 @@ function App() {
               <p className="text-gray-600">Expense tracking coming soon...</p>
             </div>
           </div>
-        )
+        );
       case 'summary':
         return (
           <div className="space-y-6">
@@ -45,11 +71,11 @@ function App() {
               <p className="text-gray-600">Monthly summary coming soon...</p>
             </div>
           </div>
-        )
+        );
       default:
-        return <Dashboard />
+        return <Dashboard />;
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -62,10 +88,18 @@ function App() {
           </div>
         </div>
       </main>
-
-      <Toaster />
     </div>
-  )
+  );
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+      <Toaster />
+      <SonnerToaster position="top-right" />
+    </AuthProvider>
+  );
 }
 
-export default App
+export default App;

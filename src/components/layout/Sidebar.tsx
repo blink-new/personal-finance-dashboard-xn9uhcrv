@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/hooks/useAuth'
 import { 
   LayoutDashboard, 
   CreditCard, 
@@ -8,7 +9,9 @@ import {
   Receipt, 
   FileText,
   Menu,
-  X
+  X,
+  LogOut,
+  User
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -26,6 +29,7 @@ const navigation = [
 
 export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const { user, logout } = useAuth()
 
   return (
     <>
@@ -92,10 +96,29 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
           </nav>
 
           {/* Footer */}
-          <div className="p-4 border-t border-gray-200">
-            <div className="text-xs text-gray-500 text-center">
-              Personal Finance Dashboard
+          <div className="p-4 border-t border-gray-200 space-y-3">
+            <div className="flex items-center space-x-3 px-2">
+              <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                <User className="h-4 w-4 text-gray-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  {user?.name || 'User'}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {user?.email}
+                </p>
+              </div>
             </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+              onClick={logout}
+            >
+              <LogOut className="mr-3 h-4 w-4" />
+              Sign Out
+            </Button>
           </div>
         </div>
       </div>

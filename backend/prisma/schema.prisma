@@ -1,0 +1,181 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // User onboarding data
+  monthlyIncome     Float?
+  emergencyFund     Float?
+  riskTolerance     String? // low, medium, high
+  financialGoals    String[] // retirement, house, education, etc.
+  isOnboardingComplete Boolean @default(false)
+
+  // Relations
+  accounts          Account[]
+  loans            Loan[]
+  sipInvestments   SipInvestment[]
+  monthlyInvestments MonthlyInvestment[]
+  expenses         Expense[]
+  budgets          Budget[]
+  financialSummaries FinancialSummary[]
+
+  @@map("users")
+}
+
+model Account {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  type      AccountType
+  balance   Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("accounts")
+}
+
+model Loan {
+  id                String   @id @default(cuid())
+  userId            String
+  loanName          String
+  principalAmount   Float
+  outstandingAmount Float
+  interestRate      Float
+  emiAmount         Float
+  tenureMonths      Int
+  startDate         DateTime
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("loans")
+}
+
+model SipInvestment {
+  id                   String   @id @default(cuid())
+  userId               String
+  sipName              String
+  category             InvestmentCategory
+  monthlyAmount        Float
+  currentValue         Float
+  allocationPercentage Float
+  expectedReturnRate   Float
+  startDate            DateTime
+  isActive             Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  monthlyInvestments MonthlyInvestment[]
+
+  @@map("sip_investments")
+}
+
+model MonthlyInvestment {
+  id             String   @id @default(cuid())
+  userId         String
+  sipId          String
+  amount         Float
+  investmentDate DateTime
+  createdAt      DateTime @default(now())
+
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sipInvestment SipInvestment @relation(fields: [sipId], references: [id], onDelete: Cascade)
+
+  @@map("monthly_investments")
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  userId      String
+  amount      Float
+  category    String
+  description String?
+  expenseDate DateTime
+  isFixed     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("expenses")
+}
+
+model Budget {
+  id           String   @id @default(cuid())
+  userId       String
+  category     String
+  monthlyLimit Float
+  currentSpent Float    @default(0)
+  month        Int
+  year         Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, category, month, year])
+  @@map("budgets")
+}
+
+model FinancialSummary {
+  id               String   @id @default(cuid())
+  userId           String
+  month            Int
+  year             Int
+  totalIncome      Float
+  fixedExpenses    Float
+  variableExpenses Float
+  totalInvestments Float
+  emergencyFund    Float
+  insurance        Float
+  savingsRate      Float
+  investmentRate   Float
+  healthScore      HealthScore
+  createdAt        DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, month, year])
+  @@map("financial_summaries")
+}
+
+enum AccountType {
+  SAVINGS
+  CHECKING
+  INVESTMENT
+  LOAN
+}
+
+enum InvestmentCategory {
+  LARGE_CAP
+  MID_CAP
+  SMALL_CAP
+  DEBT
+  HYBRID
+}
+
+enum HealthScore {
+  EXCELLENT
+  GOOD
+  FAIR
+  POOR
+}
